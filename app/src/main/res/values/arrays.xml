@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="voice">
+        <item >기본</item>
+        <item >여자 1</item>
+        <item >여자 2</item>
+        <item >여자 3</item>
+        <item >남자 1</item>
+        <item >남자 2</item>
+        <item >남자 3</item>
+    </string-array>
+</resources>
