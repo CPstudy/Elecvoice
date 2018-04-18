@@ -61,3 +61,9 @@ strVoice에 들어가야할 문자열은 다음과 같다.
 내가 찾아본 결과로는 이게 다인 것 같다.
 
 그 다음 `setVoice(voiceobj)`를 해주면 목소리가 적용된다.
+
+
+
+## 다운로드
+
+<a href="https://play.google.com/store/apps/details?id=com.guk2zzada.elecvoice">Google Play</a>
