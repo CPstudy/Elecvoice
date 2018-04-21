@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -29,16 +30,18 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     TextView txtSpeed, txtPitch;
     SeekBar skbSpeed, skbPitch;
 
-    LinearLayout laySettings;
-    RadioGroup rdoGroupLanguage, rdoGroupFemale, rdoGroupMale;
+    View layGoogle, layClova;
+    FrameLayout laySettings;
+    RadioGroup rdoGroupEngine, rdoGroupLanguage, rdoGroupFemale, rdoGroupMale;
+    RadioButton rdoGoogle, rdoClova;
     RadioButton rdoDefault;
     RadioButton rdoFemale1, rdoFemale2, rdoFemale3;
     RadioButton rdoMale1, rdoMale2, rdoMale3;
 
     TextToSpeech tts;
 
-    private boolean isChecking = true;
-    private int mCheckedId = R.id.rdoDefault;
+    boolean isChecking = true;
+    int iEngine = 0;        // 0: Google, 1: Clova
     float fSpeed = 1.0f;
     float fPitch = 1.0f;
     boolean boolTts = false;
@@ -52,24 +55,30 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         setContentView(R.layout.activity_main);
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        laySettings = (LinearLayout) findViewById(R.id.laySettings);
-        btnPlay = (Button) findViewById(R.id.btnPlay);
-        edtText = (EditText) findViewById(R.id.edtText);
-        txtSpeed = (TextView) findViewById(R.id.txtSpeed);
-        txtPitch = (TextView) findViewById(R.id.txtPitch);
-        skbSpeed = (SeekBar) findViewById(R.id.skbSpeed);
-        skbPitch = (SeekBar) findViewById(R.id.skbPitch);
-        rdoGroupLanguage = (RadioGroup) findViewById(R.id.rdoGroupLanguage);
-        rdoGroupFemale = (RadioGroup) findViewById(R.id.rdoGroupFemale);
-        rdoGroupMale = (RadioGroup) findViewById(R.id.rdoGroupMale);
-        rdoDefault = (RadioButton) findViewById(R.id.rdoDefault);
-        rdoFemale1 = (RadioButton) findViewById(R.id.rdoFemale1);
-        rdoFemale2 = (RadioButton) findViewById(R.id.rdoFemale2);
-        rdoFemale3 = (RadioButton) findViewById(R.id.rdoFemale3);
-        rdoMale1 = (RadioButton) findViewById(R.id.rdoMale1);
-        rdoMale2 = (RadioButton) findViewById(R.id.rdoMale2);
-        rdoMale3 = (RadioButton) findViewById(R.id.rdoMale3);
+        layGoogle = findViewById(R.id.layGoogle);
+        layClova = findViewById(R.id.layClova);
+        laySettings = findViewById(R.id.laySettings);
+        btnPlay = findViewById(R.id.btnPlay);
+        edtText = findViewById(R.id.edtText);
+        txtSpeed = findViewById(R.id.txtSpeed);
+        txtPitch = findViewById(R.id.txtPitch);
+        skbSpeed = findViewById(R.id.skbSpeed);
+        skbPitch = findViewById(R.id.skbPitch);
+        rdoGroupEngine = findViewById(R.id.rdoGroupEngine);
+        rdoGroupLanguage = findViewById(R.id.rdoGroupLanguage);
+        rdoGroupFemale = findViewById(R.id.rdoGroupFemale);
+        rdoGroupMale = findViewById(R.id.rdoGroupMale);
+        rdoGoogle = findViewById(R.id.rdoGoogle);
+        rdoClova = findViewById(R.id.rdoClova);
+        rdoDefault = findViewById(R.id.rdoDefault);
+        rdoFemale1 = findViewById(R.id.rdoFemale1);
+        rdoFemale2 = findViewById(R.id.rdoFemale2);
+        rdoFemale3 = findViewById(R.id.rdoFemale3);
+        rdoMale1 = findViewById(R.id.rdoMale1);
+        rdoMale2 = findViewById(R.id.rdoMale2);
+        rdoMale3 = findViewById(R.id.rdoMale3);
 
+        rdoGroupEngine.setVisibility(View.GONE);
         laySettings.setVisibility(View.GONE);
 
         btnPlay.setOnClickListener(new View.OnClickListener() {
@@ -116,6 +125,25 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             }
         });
 
+        rdoGroupEngine.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch(checkedId) {
+                    case R.id.rdoGoogle:
+                        iEngine = 0;
+                        layGoogle.setVisibility(View.VISIBLE);
+                        layClova.setVisibility(View.GONE);
+                        break;
+
+                    case R.id.rdoClova:
+                        iEngine = 1;
+                        layGoogle.setVisibility(View.GONE);
+                        layClova.setVisibility(View.VISIBLE);
+                        break;
+                }
+            }
+        });
+
         rdoGroupLanguage.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -147,7 +175,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 if (checkedId != -1 && isChecking) {
                     isChecking = false;
                     rdoGroupMale.clearCheck();
-                    mCheckedId = checkedId;
                 }
                 isChecking = true;
 
@@ -178,7 +205,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 if (checkedId != -1 && isChecking) {
                     isChecking = false;
                     rdoGroupFemale.clearCheck();
-                    mCheckedId = checkedId;
                 }
                 isChecking = true;
 
@@ -224,8 +250,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.settings) {
             if(boolSettings) {
+                rdoGroupEngine.setVisibility(View.GONE);
                 laySettings.setVisibility(View.GONE);
             } else {
+                rdoGroupEngine.setVisibility(View.VISIBLE);
                 laySettings.setVisibility(View.VISIBLE);
             }
             boolSettings = !boolSettings;
