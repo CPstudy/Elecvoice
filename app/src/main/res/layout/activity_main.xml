@@ -31,30 +31,6 @@
 
         </LinearLayout>
 
-        <RadioGroup
-            android:id="@+id/rdoGroupEngine"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/basicMargin"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:id="@+id/rdoGoogle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:checked="true"
-                android:text="구글" />
-
-            <RadioButton
-                android:id="@+id/rdoClova"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="클로바" />
-
-        </RadioGroup>
-
         <FrameLayout
             android:id="@+id/laySettings"
             android:layout_width="match_parent"
@@ -64,7 +40,8 @@
                 android:id="@+id/layGoogle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                tools:visibility="visible">
 
                 <RadioGroup
                     android:id="@+id/rdoGroupLanguage"
@@ -200,45 +177,6 @@
 
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/layClova"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <TextView
-                    android:id="@+id/txtSpeed2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/basicMargin"
-                    android:text="읽기 속도 = 1.0" />
-
-                <SeekBar
-                    android:id="@+id/skbSpeed2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/layoutMargin"
-                    android:max="50"
-                    android:progress="10" />
-
-                <TextView
-                    android:id="@+id/txtPitch2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/basicMargin"
-                    android:text="음 높이 = 1.0" />
-
-                <SeekBar
-                    android:id="@+id/skbPitch2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/layoutMargin"
-                    android:max="50"
-                    android:progress="10" />
-
-            </LinearLayout>
-
         </FrameLayout>
 
         <LinearLayout
@@ -252,6 +190,8 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/edittext_primary"
                 android:gravity="top|left"
+                android:imeOptions="actionDone"
+                android:inputType="textMultiLine"
                 android:minHeight="150dp"
                 android:padding="@dimen/basicMargin" />
 

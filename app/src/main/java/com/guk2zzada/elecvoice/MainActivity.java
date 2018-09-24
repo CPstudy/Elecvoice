@@ -1,15 +1,20 @@
 package com.guk2zzada.elecvoice;
 
+import android.Manifest;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
+import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.Voice;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,8 +25,13 @@ import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.guk2zzada.sandwich.Sandwich;
 
 import java.util.Locale;
+
+import es.dmoral.toasty.Toasty;
 
 public class MainActivity extends AppCompatActivity implements TextToSpeech.OnInitListener {
 
@@ -30,20 +40,22 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     TextView txtSpeed, txtPitch;
     SeekBar skbSpeed, skbPitch;
 
-    View layGoogle, layClova;
+    View layGoogle;
     FrameLayout laySettings;
-    RadioGroup rdoGroupEngine, rdoGroupLanguage, rdoGroupFemale, rdoGroupMale;
-    RadioButton rdoGoogle, rdoClova;
+    RadioGroup rdoGroupLanguage, rdoGroupFemale, rdoGroupMale;
     RadioButton rdoDefault;
     RadioButton rdoFemale1, rdoFemale2, rdoFemale3;
     RadioButton rdoMale1, rdoMale2, rdoMale3;
 
     TextToSpeech tts;
 
+    final static int ENGINE_GOOGLE = 0;
+
     boolean isChecking = true;
-    int iEngine = 0;        // 0: Google, 1: Clova
+    int iEngine = ENGINE_GOOGLE;
     float fSpeed = 1.0f;
     float fPitch = 1.0f;
+    int clovaSpeed = 0;
     boolean boolTts = false;
     boolean boolSettings = false;
     String strVoice = "";
@@ -56,7 +68,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         layGoogle = findViewById(R.id.layGoogle);
-        layClova = findViewById(R.id.layClova);
         laySettings = findViewById(R.id.laySettings);
         btnPlay = findViewById(R.id.btnPlay);
         edtText = findViewById(R.id.edtText);
@@ -64,12 +75,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         txtPitch = findViewById(R.id.txtPitch);
         skbSpeed = findViewById(R.id.skbSpeed);
         skbPitch = findViewById(R.id.skbPitch);
-        rdoGroupEngine = findViewById(R.id.rdoGroupEngine);
         rdoGroupLanguage = findViewById(R.id.rdoGroupLanguage);
         rdoGroupFemale = findViewById(R.id.rdoGroupFemale);
         rdoGroupMale = findViewById(R.id.rdoGroupMale);
-        rdoGoogle = findViewById(R.id.rdoGoogle);
-        rdoClova = findViewById(R.id.rdoClova);
         rdoDefault = findViewById(R.id.rdoDefault);
         rdoFemale1 = findViewById(R.id.rdoFemale1);
         rdoFemale2 = findViewById(R.id.rdoFemale2);
@@ -78,14 +86,50 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         rdoMale2 = findViewById(R.id.rdoMale2);
         rdoMale3 = findViewById(R.id.rdoMale3);
 
-        rdoGroupEngine.setVisibility(View.GONE);
         laySettings.setVisibility(View.GONE);
+
+        ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.INTERNET}, MODE_PRIVATE);
 
         btnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 readText(locale, edtText.getText().toString());
+                Sandwich.makeText(getApplicationContext(), edtText.getText().toString(), Toast.LENGTH_SHORT).show();
             }
+        });
+
+        edtText.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (i == KeyEvent.KEYCODE_ENTER)) {
+                    readText(locale, edtText.getText().toString());
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        edtText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+
+            @Override
+
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
+                switch (actionId) {
+
+                    case EditorInfo.IME_ACTION_DONE:
+                        readText(locale, edtText.getText().toString());
+                        break;
+
+                    default:
+                        return false;
+
+                }
+
+                return true;
+
+            }
+
         });
 
         skbSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -122,25 +166,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
 
-            }
-        });
-
-        rdoGroupEngine.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch(checkedId) {
-                    case R.id.rdoGoogle:
-                        iEngine = 0;
-                        layGoogle.setVisibility(View.VISIBLE);
-                        layClova.setVisibility(View.GONE);
-                        break;
-
-                    case R.id.rdoClova:
-                        iEngine = 1;
-                        layGoogle.setVisibility(View.GONE);
-                        layClova.setVisibility(View.VISIBLE);
-                        break;
-                }
             }
         });
 
@@ -250,10 +275,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.settings) {
             if(boolSettings) {
-                rdoGroupEngine.setVisibility(View.GONE);
                 laySettings.setVisibility(View.GONE);
             } else {
-                rdoGroupEngine.setVisibility(View.VISIBLE);
                 laySettings.setVisibility(View.VISIBLE);
             }
             boolSettings = !boolSettings;
