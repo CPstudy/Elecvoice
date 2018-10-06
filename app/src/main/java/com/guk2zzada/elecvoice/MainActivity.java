@@ -1,37 +1,26 @@
 package com.guk2zzada.elecvoice;
 
 import android.Manifest;
-import android.media.AudioAttributes;
 import android.media.AudioManager;
-import android.os.AsyncTask;
-import android.provider.MediaStore;
+import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.Voice;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
-import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.guk2zzada.sandwich.Sandwich;
 
 import java.util.Locale;
-
-import es.dmoral.toasty.Toasty;
 
 public class MainActivity extends AppCompatActivity implements TextToSpeech.OnInitListener {
 
@@ -94,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             @Override
             public void onClick(View view) {
                 readText(locale, edtText.getText().toString());
-                Sandwich.makeText(getApplicationContext(), edtText.getText().toString(), Toast.LENGTH_SHORT).show();
+                //Sandwich.makeText(getApplicationContext(), edtText.getText().toString(), Toast.LENGTH_SHORT).show();
             }
         });
 
