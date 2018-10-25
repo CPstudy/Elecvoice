@@ -22,6 +22,7 @@
             android:orientation="horizontal">
 
             <Button
+                style="?android:attr/borderlessButtonStyle"
                 android:id="@+id/btnPlay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -174,6 +175,16 @@
                     android:layout_marginBottom="@dimen/layoutMargin"
                     android:max="50"
                     android:progress="10" />
+
+                <Button
+                    style="?android:attr/borderlessButtonStyle"
+                    android:id="@+id/btnMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/layoutMargin"
+                    android:background="@drawable/btn_primary"
+                    android:text="식단 가져오기"
+                    android:textColor="@color/txtColor"/>
 
             </LinearLayout>
 

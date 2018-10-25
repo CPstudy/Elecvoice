@@ -2,6 +2,7 @@ package com.guk2zzada.elecvoice;
 
 import android.Manifest;
 import android.media.AudioManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.Voice;
@@ -20,11 +21,21 @@ import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements TextToSpeech.OnInitListener {
 
     Button btnPlay;
+    Button btnMenu;
     EditText edtText;
     TextView txtSpeed, txtPitch;
     SeekBar skbSpeed, skbPitch;
@@ -50,6 +61,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     String strVoice = "";
     Locale locale = Locale.KOREA;
 
+    ArrayList<String> list = new ArrayList<>();
+    ArrayList<String> list2 = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         layGoogle = findViewById(R.id.layGoogle);
         laySettings = findViewById(R.id.laySettings);
         btnPlay = findViewById(R.id.btnPlay);
+        btnMenu = findViewById(R.id.btnMenu);
         edtText = findViewById(R.id.edtText);
         txtSpeed = findViewById(R.id.txtSpeed);
         txtPitch = findViewById(R.id.txtPitch);
@@ -84,6 +99,14 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             public void onClick(View view) {
                 readText(locale, edtText.getText().toString());
                 //Sandwich.makeText(getApplicationContext(), edtText.getText().toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MenuAsync ma = new MenuAsync();
+                ma.execute();
             }
         });
 
@@ -251,6 +274,87 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         }
         boolTts = true;
         tts.speak(str, TextToSpeech.QUEUE_FLUSH, null, null);
+    }
+
+    public String getMenu() {
+        try {
+            Document doc = Jsoup.connect("http://m.sungkyul.ac.kr/life/sub03_01.do").get();
+            Elements contents = doc.select("div#rstr_stu table.sk_table tbody tr div");
+
+            int count = 0;
+
+            for(Element element : contents) {
+                list.add(element.text());
+                count++;
+            }
+
+            contents = doc.select("div#rstr_sam table.sk_table tbody tr div");
+            for(Element element : contents) {
+                list2.add(element.text());
+                count++;
+            }
+
+            String[] weeks = {"일", "월", "화", "수", "목", "금", "토"};
+            Calendar cal = Calendar.getInstance();
+            int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+
+            int n1 = (dayOfWeek - 2) * 8;
+            int n2 = (dayOfWeek - 2) * 4;
+
+            String[] array = {list.get(n1), list.get(n1 + 2), list.get(n1 + 4), list.get(n1 + 6), list2.get(n2), list2.get(n2 + 2)};
+            String result = "오늘 학식은 ";
+            for(int i = 0; i < array.length; i++) {
+                String s;
+                try {
+                    s = array[i].split("/")[0];
+                    int a = s.indexOf('&');
+                    if(a >= 0) {
+                        System.out.println(s.substring(a - 1, a));
+                        s = s.replace("&", getJongsung(s.substring(a - 1, a), "과 ", "와 "));
+                        s = s.replace("(뚝)", "뚝배기");
+                    }
+                } catch (Exception e) {
+                    s = "";
+                }
+                result += s;
+
+                if(i != array.length - 1) {
+                    result += ", ";
+                }
+            }
+            result += "입니다.";
+
+            return result;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return "";
+    }
+
+    public String getJongsung(String s, String firstValue, String secondValue) {
+        char c = s.charAt(s.length() - 1);
+
+        if(c < 0xAC00 || c > 0xD7A3) {
+            return s;
+        }
+
+        String selectedValue = (c - 0xAC00) % 28 > 0 ? firstValue : secondValue;
+
+        return selectedValue;
+    }
+
+    class MenuAsync extends AsyncTask<String, String, String> {
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            edtText.setText(s);
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            return getMenu();
+        }
     }
 
     @Override
